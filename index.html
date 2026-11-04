@@ -778,7 +778,9 @@ const CFG={"slug": "clean", "fx": "rain", "fxRgb": "220,240,255", "word": "미�
 
 
   /* 구글 시트로 보내기 */
-  const utm=(()=>{ const q=new URLSearchParams(location.search); return ['utm_source','utm_medium','utm_campaign','utm_content'].map(k=>q.get(k)||'').join('/').replace(/^\/+|\/+$/g,''); })();
+  const utmQ=new URLSearchParams(location.search);
+  const utmVals=Object.fromEntries(['utm_source','utm_medium','utm_campaign','utm_term','utm_content'].map(k=>[k,utmQ.get(k)||'']));
+  const utm=Object.values(utmVals).join('/').replace(/^\/+|\/+$/g,'');
   const collect=()=>({ event:CFG.eventName, lines:L.map((ch,i)=>$('n'+(i+1)).value.trim()), message:$('f-msg').value.trim(),
     name:$('f-name').value.trim(), birth:Number(ageVal()), phone:$('f-phone').value.trim(),
     sido:sidoVal()==='서울'?'서울특별시':'경기도', sigungu:sgg.value, dong:norm(dong.value), address:fullAddr(),
@@ -787,7 +789,7 @@ const CFG={"slug": "clean", "fx": "rain", "fxRgb": "220,240,255", "word": "미�
     if(!CFG.endpoint) return false;
     const body=new URLSearchParams({event:d.event,word:CFG.word,line1:d.lines[0],line2:d.lines[1],line3:d.lines[2]||'',message:d.message,
       name:d.name,birthYear:String(d.birth),phone:d.phone,sido:d.sido,sigungu:d.sigungu,dong:d.dong,address:d.address,
-      agreed:String(d.agreed),useAgreed:String(d.useAgreed),source:d.source,website:$('f-website').value});
+      agreed:String(d.agreed),useAgreed:String(d.useAgreed),source:d.source,website:$('f-website').value,...utmVals});
     await fetch(CFG.endpoint,{method:'POST',mode:'no-cors',body});
     return true;
   }
